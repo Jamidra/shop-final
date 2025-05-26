@@ -1,6 +1,5 @@
 package pl.projekt.sklep.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,7 +14,6 @@ import java.util.List;
 @Setter
 public class OrderDto {
     private Long orderId;
-    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime orderDate;
     private BigDecimal totalAmount;
     private String status;

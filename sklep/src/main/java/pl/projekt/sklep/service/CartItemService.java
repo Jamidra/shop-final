@@ -7,7 +7,6 @@ import pl.projekt.sklep.exception.ResourceNotFoundException;
 import pl.projekt.sklep.model.Cart;
 import pl.projekt.sklep.model.CartItem;
 import pl.projekt.sklep.model.Item;
-import pl.projekt.sklep.repository.CartItemRepository;
 import pl.projekt.sklep.repository.CartRepository;
 
 import java.math.BigDecimal;

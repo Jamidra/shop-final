@@ -37,7 +37,7 @@ public class CartItemController {
             @Parameter(description = "ID of the cart", required = true) @RequestParam Long cartId,
             @Parameter(description = "ID of the item to remove", required = true) @RequestParam Long itemId) throws ResourceNotFoundException {
         cartItemService.removeItemFromCart(cartId, itemId);
-        return "Cart cleared successfully";
+        return "Item removed successfully";
     }
 
     @Operation(summary = "Update item quantity in cart", description = "Updates the quantity of an item in a cart")
