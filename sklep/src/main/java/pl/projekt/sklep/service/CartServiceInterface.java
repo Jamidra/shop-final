@@ -2,6 +2,7 @@ package pl.projekt.sklep.service;
 
 import pl.projekt.sklep.dto.CartDto;
 import pl.projekt.sklep.model.Cart;
+import pl.projekt.sklep.model.CartItem;
 
 import java.math.BigDecimal;
 
@@ -12,4 +13,6 @@ public interface CartServiceInterface {
     BigDecimal getTotalPrice(Long cartId);
     Long initializeNewCart();
     Cart getCartByCartId(Long cartId);
+    void addItem(Long cartId, CartItem item);
+    void removeItem(Long cartId, CartItem item);
 }

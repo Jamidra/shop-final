@@ -8,6 +8,7 @@ import pl.projekt.sklep.dto.CartDto;
 import pl.projekt.sklep.exception.ResourceNotFoundException;
 import pl.projekt.sklep.mapper.CartMapper;
 import pl.projekt.sklep.model.Cart;
+import pl.projekt.sklep.model.CartItem;
 import pl.projekt.sklep.repository.CartItemRepository;
 import pl.projekt.sklep.repository.CartRepository;
 
@@ -50,6 +51,7 @@ public class CartService implements CartServiceInterface {
         return cart.getTotalAmount();
     }
 
+
     @Override
     public Long initializeNewCart() {
         int retries = 3;
@@ -71,5 +73,32 @@ public class CartService implements CartServiceInterface {
     public Cart getCartByCartId(Long cartId) {
         return cartRepository.findById(cartId)
                 .orElse(null); // Or throw exception if null is not acceptable
+    }
+    @Transactional
+    public void addItem(Long cartId, CartItem item) {
+        Cart cart = getCart(cartId);
+        cart.getItems().add(item);
+        item.setCart(cart);
+        updateTotalAmount(cart);
+        cartRepository.save(cart);
+    }
+
+    @Transactional
+    public void removeItem(Long cartId, CartItem item) {
+        Cart cart = getCart(cartId);
+        cart.getItems().remove(item);
+        item.setCart(null);
+        updateTotalAmount(cart);
+        cartRepository.save(cart);
+    }
+
+    private void updateTotalAmount(Cart cart) {
+        cart.setTotalAmount(cart.getItems().stream().map(item -> {
+            BigDecimal unitPrice = item.getPrice();
+            if (unitPrice == null) {
+                return BigDecimal.ZERO;
+            }
+            return unitPrice.multiply(BigDecimal.valueOf(item.getQuantity()));
+        }).reduce(BigDecimal.ZERO, BigDecimal::add));
     }
 }

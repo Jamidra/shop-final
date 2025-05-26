@@ -18,45 +18,67 @@ public class CartItemService implements CartItemServiceInterface {
     private final CartRepository cartRepository;
     private final ItemServiceInterface itemService;
     private final CartServiceInterface cartService;
-    private final CartItemRepository cartItemRepository;
 
 
 
     @Transactional
     @Override
     public void addItemToCart(Long cartId, Long itemId, int quantity) {
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be positive");
+        }
+
         Cart cart = cartService.getCart(cartId);
         Item item = itemService.getItemById(itemId);
+
+        if (item.getPrice() == null) {
+            throw new IllegalStateException("Item price cannot be null");
+        }
+
         CartItem cartItem = cart.getItems()
                 .stream()
                 .filter(cartItem1 -> cartItem1.getItem().getItemId().equals(itemId))
                 .findFirst()
-                .orElse(new CartItem());
-        if (cartItem.getId() == null) {
-            cartItem.setCart(cart);
-            cartItem.setItem(item);
-            cartItem.setQuantity(quantity);
-            cartItem.setPrice(item.getPrice());
-        } else {
-            cartItem.setQuantity(cartItem.getQuantity() + quantity);
-        }
+                .orElseGet(() -> {
+                    CartItem newItem = new CartItem();
+                    newItem.setCart(cart);
+                    newItem.setItem(item);
+                    newItem.setPrice(item.getPrice());
+                    cart.getItems().add(newItem); // Add to cart's items set
+                    return newItem;
+                });
+
+        cartItem.setQuantity(cartItem.getQuantity() + quantity);
         cartItem.setTotalPrice();
-        cart.addItem(cartItem);
-        cartItemRepository.save(cartItem);
+
+        // Update cart's total amount
+        cart.setTotalAmount(cart.getItems()
+                .stream()
+                .map(CartItem::getTotalPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add));
+
         cartRepository.save(cart);
     }
 
     @Transactional
     @Override
     public void removeItemFromCart(Long cartId, Long itemId) throws ResourceNotFoundException {
-        try {
-            Cart cart = cartService.getCart(cartId);
-            CartItem itemToRemove = getCartItem(cartId, itemId);
-            cart.removeItem(itemToRemove);
-            cartRepository.save(cart);
-        } catch (ResourceNotFoundException e) {
-            throw new ResourceNotFoundException("Failed to remove item from cart: " + e.getMessage());
-        }
+        Cart cart = cartService.getCart(cartId);
+        CartItem itemToRemove = cart.getItems()
+                .stream()
+                .filter(item -> item.getItem().getItemId().equals(itemId))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Item not found in cart"));
+
+        cart.getItems().remove(itemToRemove);
+
+        // Update cart's total amount
+        cart.setTotalAmount(cart.getItems()
+                .stream()
+                .map(CartItem::getTotalPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add));
+
+        cartRepository.save(cart); // Cascade handles orphan removal
     }
 
     @Transactional

@@ -36,18 +36,7 @@ public class CartItem {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, quantity, price, totalPrice, item); // Exclude cart
+        return Objects.hash(id, quantity, price, totalPrice, item);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        CartItem cartItem = (CartItem) o;
-        return quantity == cartItem.quantity &&
-                Objects.equals(id, cartItem.id) &&
-                Objects.equals(price, cartItem.price) &&
-                Objects.equals(totalPrice, cartItem.totalPrice) &&
-                Objects.equals(item, cartItem.item); // Exclude cart
-    }
 }

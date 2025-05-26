@@ -42,6 +42,20 @@ class CartItemControllerTest {
     }
 
     @Test
+    void addItemToCart_NullCartId_InitializesNewCart() {
+        // Arrange
+        AddItemToCartRequest request = new AddItemToCartRequest(null, 2L, 3);
+        doNothing().when(cartItemService).addItemAndInitialize(null, request.getItemId(), request.getQuantity());
+
+        // Act
+        String result = cartItemController.addItemToCart(request);
+
+        // Assert
+        assertEquals("Added successfully", result);
+        verify(cartItemService, times(1)).addItemAndInitialize(null, request.getItemId(), request.getQuantity());
+    }
+
+    @Test
     void addItemToCart_NonExistentCartOrItem_ThrowsResourceNotFoundException() {
         // Arrange
         AddItemToCartRequest request = new AddItemToCartRequest(999L, 2L, 3);
@@ -50,6 +64,30 @@ class CartItemControllerTest {
         // Act & Assert
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> cartItemController.addItemToCart(request));
         assertEquals("Cart or item not found", exception.getMessage());
+        verify(cartItemService, times(1)).addItemAndInitialize(request.getCartId(), request.getItemId(), request.getQuantity());
+    }
+
+    @Test
+    void addItemToCart_NonPositiveQuantity_ThrowsIllegalArgumentException() {
+        // Arrange
+        AddItemToCartRequest request = new AddItemToCartRequest(1L, 2L, 0);
+        doThrow(new IllegalArgumentException("Quantity must be positive")).when(cartItemService).addItemAndInitialize(request.getCartId(), request.getItemId(), request.getQuantity());
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> cartItemController.addItemToCart(request));
+        assertEquals("Quantity must be positive", exception.getMessage());
+        verify(cartItemService, times(1)).addItemAndInitialize(request.getCartId(), request.getItemId(), request.getQuantity());
+    }
+
+    @Test
+    void addItemToCart_NullItemPrice_ThrowsIllegalStateException() {
+        // Arrange
+        AddItemToCartRequest request = new AddItemToCartRequest(1L, 2L, 3);
+        doThrow(new IllegalStateException("Item price cannot be null")).when(cartItemService).addItemAndInitialize(request.getCartId(), request.getItemId(), request.getQuantity());
+
+        // Act & Assert
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> cartItemController.addItemToCart(request));
+        assertEquals("Item price cannot be null", exception.getMessage());
         verify(cartItemService, times(1)).addItemAndInitialize(request.getCartId(), request.getItemId(), request.getQuantity());
     }
 
@@ -64,7 +102,7 @@ class CartItemControllerTest {
         String result = cartItemController.removeItemFromCart(cartId, itemId);
 
         // Assert
-        assertEquals("Cart cleared successfully", result);
+        assertEquals("Item removed successfully", result);
         verify(cartItemService, times(1)).removeItemFromCart(cartId, itemId);
     }
 
@@ -73,11 +111,11 @@ class CartItemControllerTest {
         // Arrange
         Long cartId = 999L;
         Long itemId = 2L;
-        doThrow(new ResourceNotFoundException("Cart or item not found")).when(cartItemService).removeItemFromCart(cartId, itemId);
+        doThrow(new ResourceNotFoundException("Item not found in cart")).when(cartItemService).removeItemFromCart(cartId, itemId);
 
         // Act & Assert
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> cartItemController.removeItemFromCart(cartId, itemId));
-        assertEquals("Cart or item not found", exception.getMessage());
+        assertEquals("Item not found in cart", exception.getMessage());
         verify(cartItemService, times(1)).removeItemFromCart(cartId, itemId);
     }
 
@@ -99,11 +137,11 @@ class CartItemControllerTest {
     void updateItemQuantity_NonExistentCartOrItem_ThrowsResourceNotFoundException() {
         // Arrange
         UpdateCartItemQuantityDto request = new UpdateCartItemQuantityDto(999L, 2L, 5);
-        doThrow(new ResourceNotFoundException("Cart or item not found")).when(cartItemService).updateItemQuantity(request.getCartId(), request.getItemId(), request.getQuantity());
+        doThrow(new ResourceNotFoundException("Item not found in cart")).when(cartItemService).updateItemQuantity(request.getCartId(), request.getItemId(), request.getQuantity());
 
         // Act & Assert
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> cartItemController.updateItemQuantity(request));
-        assertEquals("Cart or item not found", exception.getMessage());
+        assertEquals("Item not found in cart", exception.getMessage());
         verify(cartItemService, times(1)).updateItemQuantity(request.getCartId(), request.getItemId(), request.getQuantity());
     }
 }
