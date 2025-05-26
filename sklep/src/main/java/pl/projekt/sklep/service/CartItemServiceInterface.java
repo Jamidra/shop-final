@@ -1,9 +1,6 @@
 package pl.projekt.sklep.service;
 
 import jakarta.transaction.Transactional;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import pl.projekt.sklep.dto.CartItemDto;
 import pl.projekt.sklep.exception.ResourceNotFoundException;
 import pl.projekt.sklep.model.CartItem;
 

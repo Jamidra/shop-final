@@ -23,11 +23,6 @@ public class ItemService implements ItemServiceInterface {
     private final ItemMapper itemMapper;
 
     @Override
-    public Item addItem(Item request) {
-        return itemRepository.save(request); // Keep for internal use
-    }
-
-    @Override
     public ItemDto addItem(ItemDto itemDto) throws ResourceNotFoundException {
         Category category = Optional.ofNullable(itemDto.getCategory())
                 .map(CategoryDto::getName)

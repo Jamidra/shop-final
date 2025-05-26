@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AddItemToCartRequest {
 
-    @Schema(description = "ID of the cart (optional, creates new cart if not provided)", required = false)
+    @Schema(description = "ID of the cart (optional, creates new cart if not provided)")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long cartId;

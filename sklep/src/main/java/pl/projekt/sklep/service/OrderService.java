@@ -40,7 +40,7 @@ public class OrderService implements OrderServiceInterface {
         HashMap<String, Object> response = new HashMap<>();
         try {
             Cart cart = cartService.getCartByCartId(cartId);
-            Order order = createOrder(cart);
+            Order order = createOrder();
             List<OrderItem> orderItemList = createOrderItems(order, cart);
             order.setOrderItems(new HashSet<>(orderItemList));
             order.setTotalAmount(calculateTotalAmount(orderItemList));
@@ -59,7 +59,7 @@ public class OrderService implements OrderServiceInterface {
         return response;
     }
 
-    private Order createOrder(Cart cart) {
+    private Order createOrder() {
         Order order = new Order();
         order.setOrderStatus(OrderStatus.PENDING);
         order.setOrderDate(LocalDate.now());

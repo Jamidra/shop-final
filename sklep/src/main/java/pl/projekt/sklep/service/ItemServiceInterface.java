@@ -8,7 +8,6 @@ import pl.projekt.sklep.model.Item;
 import java.util.List;
 
 public interface ItemServiceInterface {
-    Item addItem(Item request); // Keep for internal use
     ItemDto addItem(ItemDto itemDto) throws ResourceNotFoundException;
     ItemDto getItemDtoById(Long itemId) throws ResourceNotFoundException;
     String deleteItemById(Long itemId) throws ResourceNotFoundException, DataIntegrityViolationException;
