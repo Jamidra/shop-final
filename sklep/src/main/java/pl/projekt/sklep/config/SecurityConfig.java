@@ -74,7 +74,7 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
     @Configuration
-    public class OpenApiConfig {
+    public static class OpenApiConfig {
 
         @Bean
         public OpenAPI customOpenAPI() {

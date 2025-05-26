@@ -4,7 +4,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.projekt.sklep.exception.ResourceNotFoundException;
-import pl.projekt.sklep.mapper.ItemMapper;
 import pl.projekt.sklep.model.Cart;
 import pl.projekt.sklep.model.CartItem;
 import pl.projekt.sklep.model.Item;
@@ -20,7 +19,7 @@ public class CartItemService implements CartItemServiceInterface {
     private final ItemServiceInterface itemService;
     private final CartServiceInterface cartService;
     private final CartItemRepository cartItemRepository;
-    private final ItemMapper itemMapper;
+
 
 
     @Transactional

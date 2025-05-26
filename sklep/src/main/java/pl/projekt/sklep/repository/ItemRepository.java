@@ -7,8 +7,7 @@ import java.util.List;
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
     List<Item> findByCategoryName(String category);
-
     List<Item> findByName(String name);
-
+    List<Item> findByCategoryId(Long categoryId);
     Long countByName(String name);
 }

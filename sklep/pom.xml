@@ -90,7 +90,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <scope>1.18.38</scope>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

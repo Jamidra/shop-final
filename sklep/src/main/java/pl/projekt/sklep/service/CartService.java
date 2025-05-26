@@ -1,7 +1,5 @@
 package pl.projekt.sklep.service;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.OneToMany;
 import lombok.RequiredArgsConstructor;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
@@ -10,13 +8,11 @@ import pl.projekt.sklep.dto.CartDto;
 import pl.projekt.sklep.exception.ResourceNotFoundException;
 import pl.projekt.sklep.mapper.CartMapper;
 import pl.projekt.sklep.model.Cart;
-import pl.projekt.sklep.model.CartItem;
 import pl.projekt.sklep.repository.CartItemRepository;
 import pl.projekt.sklep.repository.CartRepository;
 
 import java.math.BigDecimal;
-import java.util.HashSet;
-import java.util.Set;
+
 
 @RequiredArgsConstructor
 @Service

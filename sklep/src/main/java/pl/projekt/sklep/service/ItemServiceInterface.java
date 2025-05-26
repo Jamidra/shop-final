@@ -11,15 +11,11 @@ public interface ItemServiceInterface {
     Item addItem(Item request); // Keep for internal use
     ItemDto addItem(ItemDto itemDto) throws ResourceNotFoundException;
     ItemDto getItemDtoById(Long itemId) throws ResourceNotFoundException;
-    void deleteItemById(Long itemId) throws ResourceNotFoundException, DataIntegrityViolationException;
+    String deleteItemById(Long itemId) throws ResourceNotFoundException, DataIntegrityViolationException;
     ItemDto updateItem(ItemDto itemDto, Long itemId) throws ResourceNotFoundException;
     List<ItemDto> getAllItems();
-
     List<ItemDto> getItemsByCategory(String category) throws ResourceNotFoundException;
     List<ItemDto> getItemsByName(String name) throws ResourceNotFoundException;
     Long countItemsByName(String name);
-    List<ItemDto> getConvertedItems(List<Item> items);
-    ItemDto convertToDto(Item item);
-
     Item getItemById(Long itemId);
 }

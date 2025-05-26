@@ -26,40 +26,28 @@ public class ItemController {
 
     @Operation(summary = "Add a new item", description = "Creates a new item in the store")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Item created successfully",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ItemDto.class))),
-            @ApiResponse(responseCode = "404", description = "Category not found",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorResponseDto.class)))
+            @ApiResponse(responseCode = "200", description = "Item created successfully"),
+            @ApiResponse(responseCode = "404", description = "Category not found")
     })
     @PostMapping("/add")
     public ItemDto addItem(
             @Parameter(description = "Item details to add", required = true) @RequestBody ItemDto itemDto) throws ResourceNotFoundException {
-        itemService.addItem(itemDto);
-        return itemDto;
+        return itemService.addItem(itemDto);
     }
 
     @Operation(summary = "Get all items", description = "Retrieves a list of all items in the store")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved list of items",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ItemDto.class)))
-    })
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved list of items")
+
     @GetMapping("/all")
     public List<ItemDto> getAllItems() {
         return itemService.getAllItems();
     }
 
     @Operation(summary = "Get item by ID", description = "Retrieves a single item by its ID")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved item",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ItemDto.class))),
-            @ApiResponse(responseCode = "404", description = "Item not found",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorResponseDto.class)))
-    })
+
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved item")
+            @ApiResponse(responseCode = "404", description = "Item not found")
+
     @GetMapping("/by_id")
     public ItemDto getItemById(
             @Parameter(description = "ID of the item to retrieve", required = true) @RequestParam Long itemId) throws ResourceNotFoundException {
@@ -96,8 +84,7 @@ public class ItemController {
     @DeleteMapping("/delete")
     public String deleteItem(
             @Parameter(description = "ID of the item to delete", required = true) @RequestParam Long itemId) throws ResourceNotFoundException, DataIntegrityViolationException {
-        itemService.deleteItemById(itemId);
-        return "Deletion successful";
+        return itemService.deleteItemById(itemId);
     }
 
     @Operation(summary = "Get items by name", description = "Retrieves a list of items by their name")

@@ -1,10 +1,14 @@
 package pl.projekt.sklep.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import pl.projekt.sklep.dto.CategoryDto;
 import pl.projekt.sklep.exception.AlreadyExistsException;
 import pl.projekt.sklep.exception.ResourceNotFoundException;
+import pl.projekt.sklep.mapper.CategoryMapper;
 import pl.projekt.sklep.model.Category;
+import pl.projekt.sklep.model.Item;
 import pl.projekt.sklep.repository.CategoryRepository;
 import pl.projekt.sklep.repository.ItemRepository;
 
@@ -16,6 +20,7 @@ import java.util.Optional;
 public class CategoryService implements CategoryServiceInterface {
     private final CategoryRepository categoryRepository;
     private final ItemRepository itemRepository;
+    private final CategoryMapper categoryMapper;
 
     @Override
     public Category getCategoryById(Long id) throws ResourceNotFoundException {
@@ -43,11 +48,13 @@ public class CategoryService implements CategoryServiceInterface {
     }
 
     @Override
-    public Category addCategory(Category category) throws AlreadyExistsException {
+    public CategoryDto addCategory(CategoryDto categoryDto) throws AlreadyExistsException {
         try {
+            Category category = categoryMapper.toEntity(categoryDto);
             return Optional.of(category)
                     .filter(c -> !categoryRepository.existsByName(c.getName()))
                     .map(categoryRepository::save)
+                    .map(categoryMapper::toDto)
                     .orElseThrow(() -> new AlreadyExistsException("Category already exists: " + category.getName()));
         } catch (AlreadyExistsException e) {
             throw new AlreadyExistsException("Failed to add category: " + e.getMessage());
@@ -55,30 +62,33 @@ public class CategoryService implements CategoryServiceInterface {
     }
 
     @Override
-    public Category updateCategory(Category category, Long id) throws ResourceNotFoundException {
+    public CategoryDto updateCategory(CategoryDto categoryDto, Long id) throws ResourceNotFoundException {
         try {
+            Category category = categoryMapper.toEntity(categoryDto);
             return Optional.ofNullable(getCategoryById(id))
                     .map(oldCategory -> {
                         oldCategory.setName(category.getName());
                         return categoryRepository.save(oldCategory);
                     })
+                    .map(categoryMapper::toDto)
                     .orElseThrow(() -> new ResourceNotFoundException("Category not found with ID: " + id));
         } catch (ResourceNotFoundException e) {
             throw new ResourceNotFoundException("Failed to update category: " + e.getMessage());
         }
     }
 
+    @Transactional
     @Override
     public void deleteCategoryById(Long id) throws ResourceNotFoundException {
         try {
             Category category = categoryRepository.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("Category not found with ID: " + id));
-
-            category.getItems().forEach(item -> {
+            List<Item> items = itemRepository.findByCategoryId(id);
+            items.forEach(item -> {
                 item.setCategory(null);
                 itemRepository.save(item);
             });
-            // Now delete the category
+            itemRepository.flush();
             categoryRepository.delete(category);
         } catch (ResourceNotFoundException e) {
             throw new ResourceNotFoundException("Failed to delete category: " + e.getMessage());

@@ -2,7 +2,6 @@ package pl.projekt.sklep.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import pl.projekt.sklep.dto.CategoryDto;
 import pl.projekt.sklep.dto.ItemDto;
@@ -30,66 +29,49 @@ public class ItemService implements ItemServiceInterface {
 
     @Override
     public ItemDto addItem(ItemDto itemDto) throws ResourceNotFoundException {
-        try {
-            Category category = Optional.ofNullable(itemDto.getCategory())
-                    .map(CategoryDto::getName)
-                    .map(categoryRepository::findByName)
-                    .orElseGet(() -> {
-                        Category newCategory = new Category();
-                        newCategory.setName(itemDto.getCategory().getName());
-                        return categoryRepository.save(newCategory);
-                    });
-            Item item = itemMapper.toEntity(itemDto);
-            item.setCategory(category);
-            Item savedItem = itemRepository.save(item);
-            return itemMapper.toDto(savedItem);
-        } catch (Exception e) {
-            throw new ResourceNotFoundException("Failed to add item: " + e.getMessage());
-        }
+        Category category = Optional.ofNullable(itemDto.getCategory())
+                .map(CategoryDto::getName)
+                .map(categoryRepository::findByName)
+                .orElseGet(() -> {
+                    Category newCategory = new Category();
+                    newCategory.setName(itemDto.getCategory().getName());
+                    return categoryRepository.save(newCategory);
+                });
+        Item item = itemMapper.toEntity(itemDto);
+        item.setCategory(category);
+        Item savedItem = itemRepository.save(item);
+        return itemMapper.toDto(savedItem);
     }
 
     @Override
     public ItemDto getItemDtoById(Long itemId) throws ResourceNotFoundException {
-        try {
-            Item item = itemRepository.findById(itemId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Item not found with ID: " + itemId));
-            return itemMapper.toDto(item);
-        } catch (ResourceNotFoundException e) {
-            throw new ResourceNotFoundException("Failed to retrieve item: " + e.getMessage());
-        }
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new ResourceNotFoundException("Item not found with ID: " + itemId));
+        return itemMapper.toDto(item);
     }
 
     @Override
     public Item getItemById(Long itemId) {
         return itemRepository.findById(itemId)
-                .orElseThrow(()-> new ResourceNotFoundException("Item not found!"));
+                .orElseThrow(() -> new ResourceNotFoundException("Item not found with ID: " + itemId));
     }
 
     @Transactional
     @Override
-    public void deleteItemById(Long itemId) throws ResourceNotFoundException, DataIntegrityViolationException {
-        try {
-            Item item = itemRepository.findById(itemId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Item not found with ID: " + itemId));
-            itemRepository.delete(item);
-        } catch (ResourceNotFoundException e) {
-            throw new ResourceNotFoundException("Failed to delete item: " + e.getMessage());
-        } catch (DataIntegrityViolationException e) {
-            throw new DataIntegrityViolationException("Cannot delete item with ID " + itemId + " because it is referenced by other records");
-        }
+    public String deleteItemById(Long itemId) throws ResourceNotFoundException {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new ResourceNotFoundException("Item not found with ID: " + itemId));
+        itemRepository.delete(item);
+        return "Item deleted";
     }
 
     @Override
     public ItemDto updateItem(ItemDto itemDto, Long itemId) throws ResourceNotFoundException {
-        try {
-            Item updatedItem = itemRepository.findById(itemId)
-                    .map(existingItem -> updateExistingItem(existingItem, itemDto))
-                    .map(itemRepository::save)
-                    .orElseThrow(() -> new ResourceNotFoundException("Item not found with ID: " + itemId));
-            return itemMapper.toDto(updatedItem);
-        } catch (ResourceNotFoundException e) {
-            throw new ResourceNotFoundException("Failed to update item: " + e.getMessage());
-        }
+        Item updatedItem = itemRepository.findById(itemId)
+                .map(existingItem -> updateExistingItem(existingItem, itemDto))
+                .map(itemRepository::save)
+                .orElseThrow(() -> new ResourceNotFoundException("Item not found with ID: " + itemId));
+        return itemMapper.toDto(updatedItem);
     }
 
     private Item updateExistingItem(Item existingItem, ItemDto itemDto) {
@@ -119,42 +101,24 @@ public class ItemService implements ItemServiceInterface {
 
     @Override
     public List<ItemDto> getItemsByCategory(String category) throws ResourceNotFoundException {
-        try {
-            List<Item> items = itemRepository.findByCategoryName(category);
-            if (items.isEmpty()) {
-                throw new ResourceNotFoundException("No items found for category: " + category);
-            }
-            return items.stream().map(itemMapper::toDto).toList();
-        } catch (ResourceNotFoundException e) {
-            throw new ResourceNotFoundException("Failed to retrieve items by category: " + e.getMessage());
+        List<Item> items = itemRepository.findByCategoryName(category);
+        if (items.isEmpty()) {
+            throw new ResourceNotFoundException("No items found for category: " + category);
         }
+        return items.stream().map(itemMapper::toDto).toList();
     }
 
     @Override
     public List<ItemDto> getItemsByName(String name) throws ResourceNotFoundException {
-        try {
-            List<Item> items = itemRepository.findByName(name);
-            if (items.isEmpty()) {
-                throw new ResourceNotFoundException("No items found with name: " + name);
-            }
-            return items.stream().map(itemMapper::toDto).toList();
-        } catch (ResourceNotFoundException e) {
-            throw new ResourceNotFoundException("Failed to retrieve items by name: " + e.getMessage());
+        List<Item> items = itemRepository.findByName(name);
+        if (items.isEmpty()) {
+            throw new ResourceNotFoundException("No items found with name: " + name);
         }
+        return items.stream().map(itemMapper::toDto).toList();
     }
 
     @Override
     public Long countItemsByName(String name) {
         return itemRepository.countByName(name);
-    }
-
-    @Override
-    public List<ItemDto> getConvertedItems(List<Item> items) {
-        return items.stream().map(itemMapper::toDto).toList();
-    }
-
-    @Override
-    public ItemDto convertToDto(Item item) {
-        return itemMapper.toDto(item);
     }
 }

@@ -10,9 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import pl.projekt.sklep.dto.AddItemToCartRequest;
 import pl.projekt.sklep.dto.UpdateCartItemQuantityDto;
 import pl.projekt.sklep.exception.ResourceNotFoundException;
-import pl.projekt.sklep.mapper.CartMapper;
 import pl.projekt.sklep.service.CartItemServiceInterface;
-import pl.projekt.sklep.service.CartServiceInterface;
 
 @RestController
 @RequestMapping("api/cartItems")
@@ -20,8 +18,6 @@ import pl.projekt.sklep.service.CartServiceInterface;
 @RequiredArgsConstructor
 public class CartItemController {
     private final CartItemServiceInterface cartItemService;
-    private final CartServiceInterface cartService;
-    private final CartMapper cartMapper;
 
     @Operation(summary = "Add an item to a cart", description = "Adds a specified quantity of an item to a cart. Creates a new cart if cartId is not provided.")
     @ApiResponse(responseCode = "200", description = "Item successfully added to cart")
