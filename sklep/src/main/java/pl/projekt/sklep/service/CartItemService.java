@@ -22,13 +22,13 @@ public class CartItemService implements CartItemServiceInterface {
 
     @Transactional
     @Override
-    public void addItemToCart(Long cartId, Long itemId, int quantity) {
+    public void addItemToCart(Long cartId, String name, int quantity) {
         if (quantity <= 0) {
             throw new IllegalArgumentException("Quantity must be positive");
         }
 
         Cart cart = cartService.getCart(cartId);
-        Item item = itemService.getItemById(itemId);
+        Item item = itemService.getItemByName(name);
 
         if (item.getPrice() == null) {
             throw new IllegalStateException("Item price cannot be null");
@@ -36,7 +36,7 @@ public class CartItemService implements CartItemServiceInterface {
 
         CartItem cartItem = cart.getItems()
                 .stream()
-                .filter(cartItem1 -> cartItem1.getItem().getItemId().equals(itemId))
+                .filter(cartItem1 -> cartItem1.getItem().getName().equals(name))
                 .findFirst()
                 .orElseGet(() -> {
                     CartItem newItem = new CartItem();
@@ -61,11 +61,11 @@ public class CartItemService implements CartItemServiceInterface {
 
     @Transactional
     @Override
-    public void removeItemFromCart(Long cartId, Long itemId) throws ResourceNotFoundException {
+    public void removeItemFromCart(Long cartId, String name) throws ResourceNotFoundException {
         Cart cart = cartService.getCart(cartId);
         CartItem itemToRemove = cart.getItems()
                 .stream()
-                .filter(item -> item.getItem().getItemId().equals(itemId))
+                .filter(item -> item.getItem().getName().equals(name))
                 .findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException("Item not found in cart"));
 
@@ -82,12 +82,12 @@ public class CartItemService implements CartItemServiceInterface {
 
     @Transactional
     @Override
-    public void updateItemQuantity(Long cartId, Long itemId, int quantity) throws ResourceNotFoundException {
+    public void updateItemQuantity(Long cartId, String name, int quantity) throws ResourceNotFoundException {
         try {
             Cart cart = cartService.getCart(cartId);
             cart.getItems()
                     .stream()
-                    .filter(item -> item.getItem().getItemId().equals(itemId))
+                    .filter(item -> item.getItem().getName().equals(name))
                     .findFirst()
                     .ifPresent(item -> {
                         item.setQuantity(quantity);
@@ -105,25 +105,16 @@ public class CartItemService implements CartItemServiceInterface {
         }
     }
 
-    @Transactional
-    @Override
-    public CartItem getCartItem(Long cartId, Long itemId) throws ResourceNotFoundException {
-        Cart cart = cartService.getCart(cartId);
-        return cart.getItems()
-                .stream()
-                .filter(item -> item.getItem().getItemId().equals(itemId))
-                .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("Item not found in cart"));
-    }
+
 
     @Transactional
     @Override
-    public void addItemAndInitialize(Long cartId, Long itemId, Integer quantity) {
+    public void addItemAndInitialize(Long cartId, String name, Integer quantity) {
         try {
             if (cartId == null) {
                 cartId = cartService.initializeNewCart();
             }
-            addItemToCart(cartId, itemId, quantity);
+            addItemToCart(cartId, name, quantity);
         } catch (ResourceNotFoundException e) {
             throw new ResourceNotFoundException(e.getMessage());
         }

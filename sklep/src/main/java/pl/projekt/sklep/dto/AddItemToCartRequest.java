@@ -21,11 +21,11 @@ public class AddItemToCartRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long cartId;
 
-    @Schema(description = "ID of the item to add", required = true)
-    @NotNull(message = "Item ID is required")
-    private Long itemId;
+    @Schema(description = "Name of the item to add")
+    @NotNull(message = "Item name is required")
+    private String itemName;
 
-    @Schema(description = "Quantity of the item to add", required = true)
+    @Schema(description = "Quantity of the item to add")
     @NotNull(message = "Quantity is required")
     @Positive(message = "Quantity must be positive")
     private Integer quantity;

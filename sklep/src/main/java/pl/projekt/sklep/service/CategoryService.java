@@ -22,21 +22,11 @@ public class CategoryService implements CategoryServiceInterface {
     private final ItemRepository itemRepository;
     private final CategoryMapper categoryMapper;
 
-    @Override
-    public Category getCategoryById(Long id) throws ResourceNotFoundException {
-        try {
-            return categoryRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Category not found with ID: " + id));
-        } catch (ResourceNotFoundException e) {
-            throw new ResourceNotFoundException("Failed to retrieve category: " + e.getMessage());
-        }
-    }
 
     @Override
     public Category getCategoryByName(String name) throws ResourceNotFoundException {
         try {
-            return Optional.ofNullable(categoryRepository.findByName(name))
-                    .orElseThrow(() -> new ResourceNotFoundException("Category not found with name: " + name));
+            return categoryRepository.findByName(name);
         } catch (ResourceNotFoundException e) {
             throw new ResourceNotFoundException("Failed to retrieve category: " + e.getMessage());
         }
@@ -62,16 +52,16 @@ public class CategoryService implements CategoryServiceInterface {
     }
 
     @Override
-    public CategoryDto updateCategory(CategoryDto categoryDto, Long id) throws ResourceNotFoundException {
+    public CategoryDto updateCategory(CategoryDto categoryDto, String name) throws ResourceNotFoundException {
         try {
-            Category category = categoryMapper.toEntity(categoryDto);
-            return Optional.ofNullable(getCategoryById(id))
+            categoryMapper.toEntity(categoryDto);
+            return Optional.ofNullable(getCategoryByName(name))
                     .map(oldCategory -> {
-                        oldCategory.setName(category.getName());
+                        oldCategory.setName(name);
                         return categoryRepository.save(oldCategory);
                     })
                     .map(categoryMapper::toDto)
-                    .orElseThrow(() -> new ResourceNotFoundException("Category not found with ID: " + id));
+                    .orElseThrow(() -> new ResourceNotFoundException("Category not found with name: " + name));
         } catch (ResourceNotFoundException e) {
             throw new ResourceNotFoundException("Failed to update category: " + e.getMessage());
         }
@@ -79,11 +69,10 @@ public class CategoryService implements CategoryServiceInterface {
 
     @Transactional
     @Override
-    public void deleteCategoryById(Long id) throws ResourceNotFoundException {
+    public void deleteCategoryByName(String name) throws ResourceNotFoundException {
         try {
-            Category category = categoryRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Category not found with ID: " + id));
-            List<Item> items = itemRepository.findByCategoryId(id);
+            Category category = categoryRepository.findByName(name);
+            List<Item> items = itemRepository.findByCategoryName(name);
             items.forEach(item -> {
                 item.setCategory(null);
                 itemRepository.save(item);

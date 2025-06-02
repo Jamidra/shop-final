@@ -8,10 +8,10 @@ import pl.projekt.sklep.model.Category;
 import java.util.List;
 
 public interface CategoryServiceInterface {
-    Category getCategoryById(Long id) throws ResourceNotFoundException;
     Category getCategoryByName(String name) throws ResourceNotFoundException;
     List<Category> getAllCategories();
     CategoryDto addCategory(CategoryDto categoryDto) throws AlreadyExistsException;
-    CategoryDto updateCategory(CategoryDto categoryDto, Long id) throws ResourceNotFoundException;
-    void deleteCategoryById(Long id) throws ResourceNotFoundException;
+    CategoryDto updateCategory(CategoryDto categoryDto, String name) throws ResourceNotFoundException;
+
+    void deleteCategoryByName(String name) throws ResourceNotFoundException;
 }

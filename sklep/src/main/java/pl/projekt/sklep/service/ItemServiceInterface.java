@@ -9,12 +9,12 @@ import java.util.List;
 
 public interface ItemServiceInterface {
     ItemDto addItem(ItemDto itemDto) throws ResourceNotFoundException;
-    ItemDto getItemDtoById(Long itemId) throws ResourceNotFoundException;
-    String deleteItemById(Long itemId) throws ResourceNotFoundException, DataIntegrityViolationException;
-    ItemDto updateItem(ItemDto itemDto, Long itemId) throws ResourceNotFoundException;
+    ItemDto getItemDtoByName(String name) throws ResourceNotFoundException;
+    String deleteItemByName(String name) throws ResourceNotFoundException, DataIntegrityViolationException;
+    ItemDto updateItem(ItemDto itemDto, String name) throws ResourceNotFoundException;
     List<ItemDto> getAllItems();
     List<ItemDto> getItemsByCategory(String category) throws ResourceNotFoundException;
     List<ItemDto> getItemsByName(String name) throws ResourceNotFoundException;
     Long countItemsByName(String name);
-    Item getItemById(Long itemId);
+    Item getItemByName(String name);
 }

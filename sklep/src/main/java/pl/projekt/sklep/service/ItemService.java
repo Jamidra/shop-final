@@ -39,33 +39,42 @@ public class ItemService implements ItemServiceInterface {
     }
 
     @Override
-    public ItemDto getItemDtoById(Long itemId) throws ResourceNotFoundException {
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new ResourceNotFoundException("Item not found with ID: " + itemId));
-        return itemMapper.toDto(item);
+    public ItemDto getItemDtoByName(String name) throws ResourceNotFoundException {
+        List<Item> items = itemRepository.findByName(name);
+        if (items.isEmpty()) {
+            throw new ResourceNotFoundException("Item not found with name: " + name);
+        }
+        return itemMapper.toDto(items.get(0));
     }
 
     @Override
-    public Item getItemById(Long itemId) {
-        return itemRepository.findById(itemId)
-                .orElseThrow(() -> new ResourceNotFoundException("Item not found with ID: " + itemId));
+    public Item getItemByName(String name) {
+        List<Item> items = itemRepository.findByName(name);
+        if (items.isEmpty()) {
+            throw new ResourceNotFoundException("Item not found with name: " + name);
+        }
+        return items.get(0);
     }
 
     @Transactional
     @Override
-    public String deleteItemById(Long itemId) throws ResourceNotFoundException {
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new ResourceNotFoundException("Item not found with ID: " + itemId));
-        itemRepository.delete(item);
+    public String deleteItemByName(String name) throws ResourceNotFoundException {
+        List<Item> items = itemRepository.findByName(name);
+        if (items.isEmpty()) {
+            throw new ResourceNotFoundException("Item not found with name: " + name);
+        }
+        itemRepository.delete(items.get(0));
         return "Item deleted";
     }
 
     @Override
-    public ItemDto updateItem(ItemDto itemDto, Long itemId) throws ResourceNotFoundException {
-        Item updatedItem = itemRepository.findById(itemId)
+    public ItemDto updateItem(ItemDto itemDto, String name) throws ResourceNotFoundException {
+        Item updatedItem = itemRepository.findByName(name)
+                .stream()
+                .findFirst()
                 .map(existingItem -> updateExistingItem(existingItem, itemDto))
                 .map(itemRepository::save)
-                .orElseThrow(() -> new ResourceNotFoundException("Item not found with ID: " + itemId));
+                .orElseThrow(() -> new ResourceNotFoundException("Item not found with name: " + name));
         return itemMapper.toDto(updatedItem);
     }
 

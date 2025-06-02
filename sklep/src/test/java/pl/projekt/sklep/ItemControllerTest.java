@@ -61,49 +61,49 @@ class ItemControllerTest {
     }
 
     @Test
-    void getItemById_ValidId_ReturnsItemDto() {
-        Long itemId = 1L;
+    void getItemByName_ValidName_ReturnsItemDto() {
+        String name = "Valid";
         ItemDto itemDto = new ItemDto();
-        when(itemService.getItemDtoById(itemId)).thenReturn(itemDto);
+        when(itemService.getItemDtoByName(name)).thenReturn(itemDto);
 
-        ItemDto result = itemController.getItemById(itemId);
+        ItemDto result = itemController.getItemByName(name);
 
         assertEquals(itemDto, result);
-        verify(itemService, times(1)).getItemDtoById(itemId);
+        verify(itemService, times(1)).getItemDtoByName(name);
     }
 
     @Test
-    void updateItem_ValidDtoAndId_ReturnsUpdatedItemDto() {
-        Long itemId = 1L;
+    void updateItem_ValidDtoAndName_ReturnsUpdatedItemDto() {
+        String name = "Valid";
         ItemDto itemDto = new ItemDto();
-        when(itemService.updateItem(itemDto, itemId)).thenReturn(itemDto);
+        when(itemService.updateItem(itemDto, name)).thenReturn(itemDto);
 
-        ItemDto result = itemController.updateItem(itemDto, itemId);
+        ItemDto result = itemController.updateItem(itemDto, name);
 
         assertEquals(itemDto, result);
-        verify(itemService, times(1)).updateItem(itemDto, itemId);
+        verify(itemService, times(1)).updateItem(itemDto, name);
     }
 
     @Test
-    void deleteItem_ValidId_ReturnsSuccessMessage() {
-        Long itemId = 1L;
-        when(itemService.deleteItemById(itemId)).thenReturn("Item deleted");
+    void deleteItem_ValidName_ReturnsSuccessMessage() {
+        String name = "Valid";
+        when(itemService.deleteItemByName(name)).thenReturn("Item deleted");
 
-        String result = itemController.deleteItem(itemId);
+        String result = itemController.deleteItem(name);
 
         assertEquals("Item deleted", result);
-        verify(itemService, times(1)).deleteItemById(itemId);
+        verify(itemService, times(1)).deleteItemByName(name);
     }
 
     @Test
-    void getItemByName_ValidName_ReturnsItemsString() {
+    void getItemsByName_ValidName_ReturnsItemList() {
         String name = "Laptop";
         List<ItemDto> items = List.of(new ItemDto());
         when(itemService.getItemsByName(name)).thenReturn(items);
 
-        String result = itemController.getItemByName(name);
+        List<ItemDto> result = itemController.getItemsByName(name);
 
-        assertEquals(items.toString(), result);
+        assertEquals(items, result);
         verify(itemService, times(1)).getItemsByName(name);
     }
 

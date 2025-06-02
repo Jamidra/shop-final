@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import pl.projekt.sklep.dto.CategoryDto;
 import pl.projekt.sklep.exception.AlreadyExistsException;
 import pl.projekt.sklep.exception.ResourceNotFoundException;
-import pl.projekt.sklep.mapper.CategoryMapper;
 import pl.projekt.sklep.service.CategoryServiceInterface;
 
 @RestController
@@ -18,7 +17,6 @@ import pl.projekt.sklep.service.CategoryServiceInterface;
 @RequiredArgsConstructor
 public class CategoryController {
     private final CategoryServiceInterface categoryService;
-    private final CategoryMapper categoryMapper;
 
     @Operation(summary = "Get all categories", description = "Retrieves a list of all categories")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved list of categories")
@@ -37,14 +35,6 @@ public class CategoryController {
         return categoryService.addCategory(categoryDto).toString();
     }
 
-    @Operation(summary = "Get category by ID", description = "Retrieves a category by its ID")
-    @ApiResponse(responseCode = "200", description = "Category retrieved successfully")
-    @ApiResponse(responseCode = "404", description = "Category not found")
-    @GetMapping("/id")
-    public String getCategoryById(
-            @Parameter(description = "ID of the category to retrieve", required = true) @RequestParam Long id) throws ResourceNotFoundException {
-        return categoryMapper.toDto(categoryService.getCategoryById(id)).toString();
-    }
 
     @Operation(summary = "Get category by name", description = "Retrieves a category by its name")
     @ApiResponse(responseCode = "200", description = "Category retrieved successfully")
@@ -58,20 +48,20 @@ public class CategoryController {
     @Operation(summary = "Delete a category", description = "Deletes a category by its ID")
     @ApiResponse(responseCode = "200", description = "Category deleted successfully")
     @ApiResponse(responseCode = "404", description = "Category not found")
-    @DeleteMapping("/delete_by_id")
+    @DeleteMapping("/delete_by_name")
     public String deleteCategory(
-            @Parameter(description = "ID of the category to delete", required = true) @RequestParam Long id) throws ResourceNotFoundException {
-        categoryService.deleteCategoryById(id);
+            @Parameter(description = "Name of the category to delete", required = true) @RequestParam String name) throws ResourceNotFoundException {
+        categoryService.deleteCategoryByName(name);
         return "Deletion successful";
     }
 
     @Operation(summary = "Update a category", description = "Updates an existing category by its ID")
     @ApiResponse(responseCode = "200", description = "Category updated successfully")
     @ApiResponse(responseCode = "404", description = "Category not found")
-    @PutMapping("/update_category/{id}")
-    public String updateCategory(
+    @PutMapping("/update_category")
+    public CategoryDto updateCategory(
             @Parameter(description = "Updated category details", required = true) @RequestBody CategoryDto categoryDto,
-            @Parameter(description = "ID of the category to update", required = true) @PathVariable Long id) throws ResourceNotFoundException {
-        return categoryService.updateCategory(categoryDto, id).toString();
+            @Parameter(description = "ID of the category to update", required = true) @RequestParam String name) throws ResourceNotFoundException {
+        return categoryService.updateCategory(categoryDto, name);
     }
 }

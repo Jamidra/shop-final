@@ -15,9 +15,8 @@ public class UpdateCartItemQuantityDto {
     @Min(value = 1, message = "Cart ID must be a positive number")
     private Long cartId;
 
-    @NotNull(message = "Item ID is required")
-    @Min(value = 1, message = "Item ID must be a positive number")
-    private Long itemId;
+    @NotNull(message = "Item name is required")
+    private String itemName;
 
     @NotNull(message = "Quantity is required")
     @Min(value = 1, message = "Quantity must be at least 1")

@@ -9,7 +9,6 @@ import pl.projekt.sklep.controller.CategoryController;
 import pl.projekt.sklep.dto.CategoryDto;
 import pl.projekt.sklep.exception.AlreadyExistsException;
 import pl.projekt.sklep.exception.ResourceNotFoundException;
-import pl.projekt.sklep.mapper.CategoryMapper;
 import pl.projekt.sklep.model.Category;
 import pl.projekt.sklep.service.CategoryServiceInterface;
 
@@ -22,9 +21,6 @@ class CategoryControllerTest {
 
     @Mock
     private CategoryServiceInterface categoryService;
-
-    @Mock
-    private CategoryMapper categoryMapper;
 
     @InjectMocks
     private CategoryController categoryController;
@@ -67,31 +63,6 @@ class CategoryControllerTest {
     }
 
     @Test
-    void getCategoryById_ValidId_ReturnsCategoryDtoString() {
-        Long id = 1L;
-        Category category = new Category();
-        CategoryDto categoryDto = new CategoryDto();
-        when(categoryService.getCategoryById(id)).thenReturn(category);
-        when(categoryMapper.toDto(category)).thenReturn(categoryDto);
-
-        String result = categoryController.getCategoryById(id);
-
-        assertEquals(categoryDto.toString(), result);
-        verify(categoryService, times(1)).getCategoryById(id);
-        verify(categoryMapper, times(1)).toDto(category);
-    }
-
-    @Test
-    void getCategoryById_NonExistentId_ThrowsResourceNotFoundException() {
-        Long id = 999L;
-        when(categoryService.getCategoryById(id)).thenThrow(new ResourceNotFoundException("Category not found with ID: 999"));
-
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> categoryController.getCategoryById(id));
-        assertEquals("Category not found with ID: 999", exception.getMessage());
-        verify(categoryService, times(1)).getCategoryById(id);
-    }
-
-    @Test
     void getCategoryByName_ValidName_ReturnsCategoryString() {
         String name = "Electronics";
         Category category = new Category();
@@ -115,45 +86,45 @@ class CategoryControllerTest {
 
     @Test
     void deleteCategory_ValidId_ReturnsSuccessMessage() {
-        Long id = 1L;
-        doNothing().when(categoryService).deleteCategoryById(id);
+        String name = "Valid";
+        doNothing().when(categoryService).deleteCategoryByName(name);
 
-        String result = categoryController.deleteCategory(id);
+        String result = categoryController.deleteCategory(name);
 
         assertEquals("Deletion successful", result);
-        verify(categoryService, times(1)).deleteCategoryById(id);
+        verify(categoryService, times(1)).deleteCategoryByName(name);
     }
 
     @Test
     void deleteCategory_NonExistentId_ThrowsResourceNotFoundException() {
-        Long id = 999L;
-        doThrow(new ResourceNotFoundException("Category not found with ID: 999")).when(categoryService).deleteCategoryById(id);
+        String name = "Invalid";
+        doThrow(new ResourceNotFoundException("Category not found with name: Invalid")).when(categoryService).deleteCategoryByName(name);
 
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> categoryController.deleteCategory(id));
-        assertEquals("Category not found with ID: 999", exception.getMessage());
-        verify(categoryService, times(1)).deleteCategoryById(id);
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> categoryController.deleteCategory(name));
+        assertEquals("Category not found with name: Invalid", exception.getMessage());
+        verify(categoryService, times(1)).deleteCategoryByName(name);
     }
 
     @Test
-    void updateCategory_ValidDtoAndId_ReturnsUpdatedCategoryDtoString() {
-        Long id = 1L;
+    void updateCategory_ValidDtoAndName_ReturnsUpdatedCategoryDtoString() {
+        String name = "Valid";
         CategoryDto categoryDto = new CategoryDto();
-        when(categoryService.updateCategory(categoryDto, id)).thenReturn(categoryDto);
+        when(categoryService.updateCategory(categoryDto, name)).thenReturn(categoryDto);
 
-        String result = categoryController.updateCategory(categoryDto, id);
+        CategoryDto result = categoryController.updateCategory(categoryDto, name);
 
-        assertEquals(categoryDto.toString(), result);
-        verify(categoryService, times(1)).updateCategory(categoryDto, id);
+        assertEquals(categoryDto, result);
+        verify(categoryService, times(1)).updateCategory(categoryDto, name);
     }
 
     @Test
-    void updateCategory_NonExistentId_ThrowsResourceNotFoundException() {
-        Long id = 999L;
+    void updateCategory_NonExistentName_ThrowsResourceNotFoundException() {
+        String name = "Invalid";
         CategoryDto categoryDto = new CategoryDto();
-        when(categoryService.updateCategory(categoryDto, id)).thenThrow(new ResourceNotFoundException("Category not found with ID: 999"));
+        when(categoryService.updateCategory(categoryDto, name)).thenThrow(new ResourceNotFoundException("Category not found with ID: 999"));
 
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> categoryController.updateCategory(categoryDto, id));
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> categoryController.updateCategory(categoryDto, name));
         assertEquals("Category not found with ID: 999", exception.getMessage());
-        verify(categoryService, times(1)).updateCategory(categoryDto, id);
+        verify(categoryService, times(1)).updateCategory(categoryDto, name);
     }
 }

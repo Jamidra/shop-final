@@ -25,10 +25,8 @@ public class ItemController {
     private final ItemServiceInterface itemService;
 
     @Operation(summary = "Add a new item", description = "Creates a new item in the store")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Item created successfully"),
-            @ApiResponse(responseCode = "404", description = "Category not found")
-    })
+    @ApiResponse(responseCode = "200", description = "Item created successfully")
+    @ApiResponse(responseCode = "404", description = "Category not found")
     @PostMapping("/add")
     public ItemDto addItem(
             @Parameter(description = "Item details to add", required = true) @RequestBody ItemDto itemDto) throws ResourceNotFoundException {
@@ -37,24 +35,21 @@ public class ItemController {
 
     @Operation(summary = "Get all items", description = "Retrieves a list of all items in the store")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved list of items")
-
     @GetMapping("/all")
     public List<ItemDto> getAllItems() {
         return itemService.getAllItems();
     }
 
-    @Operation(summary = "Get item by ID", description = "Retrieves a single item by its ID")
-
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved item")
-            @ApiResponse(responseCode = "404", description = "Item not found")
-
-    @GetMapping("/by_id")
-    public ItemDto getItemById(
-            @Parameter(description = "ID of the item to retrieve", required = true) @RequestParam Long itemId) throws ResourceNotFoundException {
-        return itemService.getItemDtoById(itemId);
+    @Operation(summary = "Get item by name", description = "Retrieves a single item by its name")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved item")
+    @ApiResponse(responseCode = "404", description = "Item not found")
+    @GetMapping("/by_name")
+    public ItemDto getItemByName(
+            @Parameter(description = "Name of the item to retrieve", required = true) @RequestParam String name) throws ResourceNotFoundException {
+        return itemService.getItemDtoByName(name);
     }
 
-    @Operation(summary = "Update an item", description = "Updates an existing item by its ID")
+    @Operation(summary = "Update an item", description = "Updates an existing item by its name")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Item updated successfully",
                     content = @Content(mediaType = "application/json",
@@ -63,14 +58,14 @@ public class ItemController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ErrorResponseDto.class)))
     })
-    @PutMapping("/{itemId}/update")
+    @PutMapping("/{name}/update")
     public ItemDto updateItem(
             @Parameter(description = "Updated item details", required = true) @RequestBody ItemDto itemDto,
-            @Parameter(description = "ID of the item to update", required = true) @PathVariable Long itemId) throws ResourceNotFoundException {
-        return itemService.updateItem(itemDto, itemId);
+            @Parameter(description = "Name of the item to update", required = true) @PathVariable String name) throws ResourceNotFoundException {
+        return itemService.updateItem(itemDto, name);
     }
 
-    @Operation(summary = "Delete an item", description = "Deletes an item by its ID")
+    @Operation(summary = "Delete an item", description = "Deletes an item by its name")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Item deleted successfully",
                     content = @Content(mediaType = "application/json")),
@@ -83,8 +78,8 @@ public class ItemController {
     })
     @DeleteMapping("/delete")
     public String deleteItem(
-            @Parameter(description = "ID of the item to delete", required = true) @RequestParam Long itemId) throws ResourceNotFoundException, DataIntegrityViolationException {
-        return itemService.deleteItemById(itemId);
+            @Parameter(description = "Name of the item to delete", required = true) @RequestParam String name) throws ResourceNotFoundException, DataIntegrityViolationException {
+        return itemService.deleteItemByName(name);
     }
 
     @Operation(summary = "Get items by name", description = "Retrieves a list of items by their name")
@@ -96,10 +91,10 @@ public class ItemController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ErrorResponseDto.class)))
     })
-    @GetMapping("/by_name")
-    public String getItemByName(
+    @GetMapping("/by_name_list")
+    public List<ItemDto> getItemsByName(
             @Parameter(description = "Name of the item to search for", required = true) @RequestParam String name) throws ResourceNotFoundException {
-        return itemService.getItemsByName(name).toString();
+        return itemService.getItemsByName(name);
     }
 
     @Operation(summary = "Get items by category", description = "Retrieves a list of items by their category")
